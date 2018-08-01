@@ -14,6 +14,7 @@ var PUtils = PUtils || {};
    * @param options
    *  container：挂载点 《body》
    *  autoplay：是否自动播放 false
+   *  loop: 控制是否循环播放 true
    * @constructor
    */
   PUtils.MusicControl = function (url, options) {
@@ -22,6 +23,7 @@ var PUtils = PUtils || {};
     this.url = url;
     this.container = options.container !== undefined ? options.container : document.getElementsByTagName("body")[0];
     this.autoplay = options.autoplay !== undefined ? options.autoplay : false;
+    this.loop = options.loop !== undefined ? options.loop : true;
 
     this.aNode = document.createElement("a");
     this.audioNode = document.createElement("audio");
@@ -35,9 +37,14 @@ var PUtils = PUtils || {};
       controlNode.id = "musicControl";
 
       this._playMusic = this._bind(this, this.playMusic);
-      this.aNode.addEventListener("click",this._playMusic);
+      this.aNode.addEventListener("click", this._playMusic);
 
-      this.audioNode.autoplay = this.autoplay;
+      this.audioNode.loop = this.loop;
+      if (this.autoplay) {
+        this.justPlay();
+      } else {
+        this.justPause();
+      }
 
       var sourceNode = document.createElement("source");
       sourceNode.src = this.url;
@@ -52,7 +59,11 @@ var PUtils = PUtils || {};
      * 播放音乐
      */
     justPlay: function () {
-      this.audioNode.play();
+      try{
+        this.audioNode.play();
+      } catch (e) {
+        this.audioNode.autoplay = true;
+      }
       this.aNode.setAttribute("class", "on");
     },
     /**
